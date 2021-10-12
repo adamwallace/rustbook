@@ -1,17 +1,34 @@
 use std::io;
-
+use rand::Rng;
+use std::cmp::Ordering;
 
 fn main() {
     println!("guess the number");
-    println!("enter your guess");
 
+    let chicken_dinner = rand::thread_rng().gen_range(1..101); // inclusive lower bound, exclusive upper bound, can also use 1..=100
     let mut guess = String::new();
 
-    io::stdin()
-        .read_line(&mut guess)
-        .expect("failed to read line");
+    println!("The secret number is: {}", chicken_dinner);
 
-    println!("You guessed {}", guess);
+    loop{
+        println!("enter your guess");
 
-    // TODO: finish
+        io::stdin()
+            .read_line(&mut guess)
+            .expect("failed to read line");
+    
+        let guess: u32 = match guess.trim().parse() {
+            Ok(num) => num,
+            Err(_) => continue
+        };
+
+        match guess.cmp(&chicken_dinner) {
+            Ordering::Less => println!("Too small!"),
+            Ordering::Greater => println!("Too Large!"),
+            Ordering::Equal => {
+                println!("You win!");
+                break;
+            }
+        }
+    }
 }
