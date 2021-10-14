@@ -6,11 +6,10 @@ fn main() {
     println!("guess the number");
 
     let chicken_dinner = rand::thread_rng().gen_range(1..101); // inclusive lower bound, exclusive upper bound, can also use 1..=100
-    let mut guess = String::new();
-
-    println!("The secret number is: {}", chicken_dinner);
 
     loop{
+
+        let mut guess = String::new();
         println!("enter your guess");
 
         io::stdin()
@@ -19,7 +18,10 @@ fn main() {
     
         let guess: u32 = match guess.trim().parse() {
             Ok(num) => num,
-            Err(_) => continue
+            Err(_) => {
+                println!("problem here");
+                continue;
+            }
         };
 
         match guess.cmp(&chicken_dinner) {
