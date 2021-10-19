@@ -134,5 +134,19 @@ fn main() {
 
     println!("tuple values: {} {} {}", five_hundred, six_point_four, one);
 
-    
+    // array type
+
+    let a = [1, 2, 3, 4, 5]; // fixed length. arrays are useful when you want your data allocated on the stack rather than the heap (discussed more in ch. 4)
+    // or when you want to ensure that you always have a fixed number of elements
+    // vectors, on the other hand, can shrink or grow in size (ch. 8)
+
+    let a: [i32; 5] = [1, 2, 3, 4, 5]; // i32 is type of each element, 5 indicates the size
+
+    let b = [3; 5]; // this creates an array with 5 3s in it. this will never be confusing
+
+    let first = a[0];
+    let second = a[1]; // accessing arrays is as expected 
+
+    // NOTE: trying to access an out of bounds element of an array will result in a runtime panic. This check has to happen at runtime because we don't know when or why out of bounds
+    // indexes might be accessed
 }
