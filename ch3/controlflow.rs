@@ -72,7 +72,6 @@ fn main () {
     while number != 0 { // this is literally syntactic sugar for something that could be done with `loop`, `if`, `else` and `break` but it's so common that rust has a built in 
                         // construct for it
         println!("{}!", number);
-
         number -= 1;
     }
 
@@ -84,7 +83,6 @@ fn main () {
 
     while index < 5 {
         println!("the value is: {}", a[index]);
-
         index += 1;
     } // this approach is error prone though, we could easily cause the program to panic if we step out of bounds of the `a` array
 
