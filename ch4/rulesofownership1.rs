@@ -38,7 +38,7 @@ Keep these rules in mind while learning about ownership:
 fn main() 
 {                       // `s` is not valid, it is not yet declared
     let s = "hello";    // `s` is valid from this point forward
-                        // still valid
+                        // this is still valid
 }                       // validity ends with scope
 
 // The point is that it's important to recognize that 1) `s` is valid when it comes into scope and REMAINS valid until it goes out of scope 
