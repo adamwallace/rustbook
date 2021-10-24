@@ -13,7 +13,7 @@
 
 // When you put stuff on the heap, you request a certain amount of space. The memory allocator finds an empty spot on the heap that's big enough, marks it as being in use, then
 // returns a "pointer" which is a location address. This is called "allocating" or "allocating on the heap"
-// Since this pointer is a known, fixed size you can store it on the stack but when youj want the actual data, you must follow the pointer
+// Since this pointer is a known, fixed size you can store it on the stack but when you want the actual data, you must follow the pointer
 
 // Pushing to the stack is faster because the allocator never has to search for a place to store new data; that location is at the top of the stack. 
 
