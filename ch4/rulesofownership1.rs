@@ -132,4 +132,105 @@ fn main()
 
     // In addition, there’s a design choice that’s implied by this: Rust will never automatically create “deep” copies of your data. Therefore, any automatic copying can be
     // assumed to be inexpensive in terms of runtime performance
+
+    // Ways Variables and Data Interact: Clone
+
+    // If we do want to deeply copy the heap data of the String, not just the stack data, we can use a common method called clone. This uses method syntax: 
+
+    let s1 = String::from("hello");
+    let s2 = s1.clone(); // heap data gets copied, but this MAY be expensive 
+
+    println!("s1 = {}, s2 = {}", s1, s2);
+
+    // So why does the following code work (with integers?):
+    let x = 5;
+    let y = x;
+
+    println!("x = {}, y = {}", x, y);
+
+    // The reason is that types such as integers that have a known size at compile time are stored entirely on the stack, so copies of the actual values are quick to make
+    // That means there’s no reason we would want to prevent `x` from being valid after we create the variable `y`. In other words, there’s no difference between deep and 
+    // shallow copying here, so calling clone wouldn’t do anything different from the usual shallow copying and we can leave it out
+
+    // Rust has a special annotation called the `Copy` trait that we can place on types like integers that are stored on the stack (more about traits in ch 10). If a type
+    // implements the `Copy` trait, an older variable is still usable after assignment (we cannot do this of the type or any of it's parts has implemented the `Drop` trait)
+    // If the type needs something special to happen when the value goes out of scope and we add the `Copy` annotation to that type, we'll get a runtime error 
+    // (Learn more about the `Copy` annotation in Appendix C "Derivable Traits")
+
+    /*
+    What types can use the `Copy` trait? As a general rule, any group of simple scalar values can implement `Copy` and nothing that requires allocation or is some form
+    of resource can implement `Copy`: 
+    
+        * All integer types, such as `u32`
+        * The Boolean type
+        * All floating point types, such as `f64`
+        * The character type, char
+        * Tuples, if they only contain types that can also implement `Copy`. So (i32, String) does not implement `Copy`
+    */
+
+    // The following is an example of passing ownership (this example starts in `main()` and follows into the next two functions):
+
+    let s = String::from("hello");  // s comes into scope
+
+    takes_ownership(s);             // s's value moves into the function...
+                                    // ... and so is no longer valid here
+
+    let x = 5;                      // x comes into scope
+
+    makes_copy(x);                  // x would move into the function,
+                                    // but i32 is Copy, so it's okay to still
+                                    // use x afterward
+
+    // Here, x goes out of scope, then s. But because s's value was moved, nothing
+    // special happens.
+
+    returnValuesAndScopePt1(); // ignore for now
+    tupleReturnExample(); // ignore for now
+}
+
+fn takes_ownership(some_string: String) { // some_string comes into scope
+    println!("{}", some_string);
+} // Here, some_string goes out of scope and `drop` is called. The backing
+  // memory is freed.
+
+ fn makes_copy(some_integer: i32) { // some_integer comes into scope
+    println!("{}", some_integer);
+} // Here, some_integer goes out of scope. Nothing special happens.
+
+
+
+// The final sections will be examples from the 4.1 subsection "Return Values and Scope". Note that we called `returnValuesAndScopePt1()` at the bottom of `main()`
+
+// Returning values can also transfer ownership
+fn returnValuesAndScopePt1() {
+    let s1 = gives_ownership();                       // gives_ownership moves its return value into s1
+    let s2 = String::from("hello");                   // s2 comes into scope
+    let s3 = takes_and_gives_back(s2);                // s2 is moved into takes_and_gives_back, which also moves its return value into s3
+}                                                     // Here, s3 goes out of scope and is dropped. s2 was moved, so nothing happens. s1 goes out of scope and is dropped.
+
+fn gives_ownership() -> String {                      // gives_ownership will move its return value into the function that calls it
+    let some_string = String::from("yours");          // some_string comes into scope
+    some_string                                       // some_string is returned and moves out to the calling function
+}
+
+// This function takes a String and returns one
+fn takes_and_gives_back(a_string: String) -> String { // a_string comes into scope
+a_string                                              // a_string is returned and moves out to the calling function
+}
+
+// The ownership of a variable follows the same pattern every time: assigning a value to another variable moves it. When a variable that includes data on the heap goes
+// out of scope, the value will be cleaned up by drop unless the data has been moved to be owned by another variable
+
+// Taking ownership and then returning it with every function sucks. "References" take care of this, but we'll talk about that in the next section. For now, know that 
+// it's possible to return multiple values using a tuple: 
+
+fn tupleReturnExample() {
+    let s1 = String::from("hello");
+    let (s2, len) = calculate_length(s1);
+    println!("The length of '{}' is {}.", s2, len);
+}
+
+fn calculate_length(s: String) -> (String, usize) {
+    let length = s.len(); // len() returns the length of a String
+    (s, length)
 }
