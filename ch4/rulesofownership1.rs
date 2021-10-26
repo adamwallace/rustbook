@@ -128,7 +128,7 @@ fn main()
     // You’ll get an error because Rust prevents you from using the invalidated reference
 
     // If you’ve heard the terms shallow copy and deep copy while working with other languages, the concept of copying the pointer, length, and capacity without copying the 
-    // data probably sounds like making a shallow copy. But because Rust also invalidates the first variable, instead of being called a shallow copy, it’s known as a move
+    // data probably sounds like making a shallow copy. But because Rust also invalidates the first variable, instead of being called a shallow copy, it’s known as a move 
 
     // In addition, there’s a design choice that’s implied by this: Rust will never automatically create “deep” copies of your data. Therefore, any automatic copying can be
     // assumed to be inexpensive in terms of runtime performance
