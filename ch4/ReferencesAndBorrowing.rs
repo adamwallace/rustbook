@@ -11,6 +11,7 @@ fn main() {
     
     
     mutRefs(); // ignore for now
+    multMut(); // ignore for now
 }
 
 fn calculate_length(s: &String) -> usize { // s is a reference to a String
@@ -67,11 +68,62 @@ fn change(some_string: &String) {
 // We can fix the errors above with some small tweaks: 
 
 fn mutRefs() {
-    let mut s = String::from("Hello");
-    change(&mut s);
-    println!("The string has changed: {}", s)
+    let mut s = String::from("Hello");          // `s` needs to be mutable
+    change(&mut s);                             // we have to create a mutable reference
+    println!("The string has changed: {}", s);
 }
 
-fn change(some_string: &mut String) {
-    some_string.push_str(", world!")
+fn change(some_string: &mut String) {           // this needs to accept a mutable reference, making it clear that the change function will mutate the value it borrows
+    some_string.push_str(", world!");
 }
+
+// NOTE: you can only have one mutable reference to a particular piece of data at a time. This code will fail: 
+
+/* 
+
+let mut s = String::from("hello");
+
+let r1 = &mut s;
+let r2 = &mut s; 
+
+println!("{}, {}", r1, r2)
+
+*/
+
+// This fails because we cannot borrow `s` as mutable more than once at a time
+
+/* 
+The benefit of having this restriction is that Rust can prevent data races at compile time. A data race is similar to a race condition and happens when these three behaviors occur:
+
+    * Two or more pointers access the same data at the same time
+    * At least one of the pointers is being used to write to the data
+    * There’s no mechanism being used to synchronize access to the data
+*/
+
+// AS ALWAYS, we can use curly braces to create a new scopem allowing for multiple mutable references, just not simultaneous ones:
+
+fn multMut() {
+    let mut s = String::from("Hello");
+    {
+        let r1 = &mut s;
+    } // r1 goes out of scope here, so we can make a new reference with no problem
+    let r2 = &mut s;
+}
+
+// NOTE: we also cannot have a mutable reference while we have an immutable one. This code will not compile: 
+
+/*
+
+let mut s = String::from("hello");
+
+let r1 = &s; // no problem
+let r2 = &s; // no problem
+let r3 = &mut s; // BIG PROBLEM
+
+println!("{}, {}, and {}", r1, r2, r3);
+
+*/
+
+// Users of an immutable reference don’t expect the values to suddenly change out from under them
+// Multiple mutable references are fine because no one who is just reading the data has the ability to affect anyone else's reading of the data
+
