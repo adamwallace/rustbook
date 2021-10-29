@@ -108,7 +108,7 @@ fn multMut() {
         let r1 = &mut s;
     } // r1 goes out of scope here, so we can make a new reference with no problem
     let r2 = &mut s;
-}
+
 
 // NOTE: we also cannot have a mutable reference while we have an immutable one. This code will not compile: 
 
@@ -127,3 +127,76 @@ println!("{}, {}, and {}", r1, r2, r3);
 // Users of an immutable reference don’t expect the values to suddenly change out from under them
 // Multiple mutable references are fine because no one who is just reading the data has the ability to affect anyone else's reading of the data
 
+// Note that a reference's scope starts from where it is introduced and continues through the last time that reference is used. The following code will compile because the last 
+// usage of the immutable references, the `println!`, occurs before the mutable reference is introduced: 
+
+    let mut s = String::from("hello");
+
+    let r1 = &s; // no problem
+    let r2 = &s; // no problem
+    println!("r1: {} and r2: {}", r1, r2);
+    // variables r1 and r2 will not be used after this point
+
+    let r3 = &mut s; // no problem
+    println!("r3: {}", r3);
+
+    dangle_example(); // ignore for now 
+}
+// the scopes of immutable references `r1` and `r2` end after the first `println!` where they are last used which is before the mutable reference to `r3` is created. The scopes don't
+// overlap, so this is allowed. The ability of the compiler to tell that a reference is no longer being used at a point before the end of the scope is called Non-Lexical Lifetimes (NLL for short)
+
+// Dangling references
+
+// In languages with pointers, it's easy to erroneously create a "dangling pointer", which references a location in memory that may have been given to someone else, by freeing some memory while 
+// preserving a pointer to that memory. The Rust compiler guarantees that references will NEVER be dangling, if you have a referenece to some data, the compiler will ensure that the data will 
+// never go out of scope before the reference to the data does
+
+// If we try to create a dangling reference, Rust will prevent with a compile-time error: 
+
+/*
+
+fn main() {
+    let reference_to_nothing = dangle();
+}
+
+fn dangle() -> &String {
+    let s = String::from("hello"); // this is a new string
+
+    &s                             // we return a reference to `s`
+}                                  // here, `s` goes out of scope and is dropped, thus memory goes away
+                                   // danger!
+
+*/
+
+// The error will look something like: 
+
+/*
+5 | fn dangle() -> &String {
+  |                ^ expected named lifetime parameter
+  = help: this function's return type contains a borrowed value, but there is no value for it to be borrowed from
+*/
+
+// The error will refer to a topic not yet covered: lifetimes (ch 10). Ignoring that, the other message contains the key to the problem with this code
+// Since `s` is created inside `dangle()`, when the function is finished, `s` will be deallocated but we tried to return a reference to it. Rust won't let us do this
+
+// The solution is to return the `String` directly: 
+
+fn dangle_example() {
+    let something = no_dangle();
+
+    println!("something: {}", something);
+}
+
+fn no_dangle() -> String {
+    let s = String::from("no dangling references here");
+
+    s
+}
+
+
+/* Recap of the rules of references: 
+
+    * At any given time, you can have EITHER one mutable reference OR any number of immutable references
+    * References must always be valid
+
+*/
